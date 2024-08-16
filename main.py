@@ -26,6 +26,8 @@ MIN_BODY_SIZE = env("MIN_BODY_SIZE", cast=int, default=512)
 MAX_BODY_SIZE = env("MAX_BODY_SIZE", cast=int, default=10 * 1024)
 CHUNK_SIZE = env("CHUNK_SIZE", cast=int, default=64)
 ENABLE_SLEEP = env("ENABLE_SLEEP", cast=bool, default=True)
+MIN_SLEEP_TIME = env("MIN_SLEEP_TIME", cast=int, default=0.01)
+MAX_SLEEP_TIME = env("MAX_SLEEP_TIME", cast=int, default=0.1)
 
 
 def generate_response_body():
@@ -72,7 +74,7 @@ async def handle_echo(reader, writer):
         await writer.drain()
 
         if ENABLE_SLEEP:
-            sleep_time = random.random()
+            sleep_time = random.uniform(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
             await asyncio.sleep(sleep_time)
 
     log.info("Closing connection", request_id=request_id)

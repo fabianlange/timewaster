@@ -5,6 +5,7 @@ import time
 import uuid
 from itertools import batched
 
+import environ
 import structlog
 from dpkt import Error
 from dpkt.http import Request
@@ -19,9 +20,13 @@ Content-Type: text/html
 
 {content}\n"""
 
-MIN_BODY_SIZE = 512
-MAX_BODY_SIZE = 1024 * 10
-CHUNK_SIZE = 64
+env = environ.Env()
+environ.Env.read_env()
+
+MIN_BODY_SIZE = env("MIN_BODY_SIZE", cast=int, default=512)
+MAX_BODY_SIZE = env("MAX_BODY_SIZE", cast=int, default=10 * 1024)
+CHUNK_SIZE = env("CHUNK_SIZE", cast=int, default=64)
+ENABLE_SLEEP = env("ENABLE_SLEEP", cast=bool, default=True)
 
 
 def generate_response_body():
@@ -64,8 +69,10 @@ async def handle_echo(reader, writer):
         chunk = "".join(chunk)
         writer.write(chunk.encode())
         await writer.drain()
-        sleep_time = random.random()
-        await asyncio.sleep(sleep_time)
+
+        if ENABLE_SLEEP:
+            sleep_time = random.random()
+            await asyncio.sleep(sleep_time)
 
     log.info("Closing connection", request_id=request_id)
     writer.close()

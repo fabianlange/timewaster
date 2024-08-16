@@ -3,7 +3,8 @@ services:
     build:
       context: .
     ports:
-      - "${BIND_PORT:-8000}:8888"
+      - "${BIND_PORT_HTTP:-8000}:8888"
+      - "${BIND_PORT_HTTPS:-8001}:8889"
     env_file:
       - .env
     volumes:

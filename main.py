@@ -19,9 +19,12 @@ Content-Type: text/html
 
 {content}"""
 
+MIN_BODY_SIZE = 512
+MAX_BODY_SIZE = 1024 * 10
+
 
 def generate_response_body():
-    length = random.randint(1024, 1024 * 100)
+    length = random.randint(MIN_BODY_SIZE, MAX_BODY_SIZE)
     content = "".join(
         [
             random.choice(string.ascii_uppercase + string.ascii_lowercase)

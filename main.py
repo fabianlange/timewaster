@@ -21,7 +21,6 @@ Content-Type: text/html
 {content}\n"""
 
 env = environ.Env()
-environ.Env.read_env()
 
 MIN_BODY_SIZE = env("MIN_BODY_SIZE", cast=int, default=512)
 MAX_BODY_SIZE = env("MAX_BODY_SIZE", cast=int, default=10 * 1024)

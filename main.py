@@ -59,7 +59,7 @@ def generate_response_body():
     )  # 1 extra for newline
 
 
-async def handle_echo(reader, writer):
+async def handle_request(reader, writer):
     request_id = str(uuid.uuid4())
     start_time = time.monotonic()
     data = await reader.read(512)
@@ -108,7 +108,7 @@ def get_ssl_context():
 
 async def main():
     http_server = await asyncio.start_server(
-        handle_echo,
+        handle_request,
         HOST,
         HTTP_PORT,
     )
@@ -123,7 +123,7 @@ async def main():
     else:
         log.info("Launching with TLS")
         https_server = await asyncio.start_server(
-            handle_echo, HOST, HTTPS_PORT, ssl=get_ssl_context()
+            handle_request, HOST, HTTPS_PORT, ssl=get_ssl_context()
         )
 
         https_address = ", ".join(

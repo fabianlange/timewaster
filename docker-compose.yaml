@@ -6,3 +6,5 @@ services:
       - "${BIND_PORT:-8000}:8888"
     env_file:
       - .env
+    volumes:
+      - ./certs:/certs

@@ -1,5 +1,6 @@
 import asyncio
 import random
+import ssl
 import string
 import time
 import uuid
@@ -25,9 +26,13 @@ env = environ.Env()
 MIN_BODY_SIZE = env("MIN_BODY_SIZE", cast=int, default=512)
 MAX_BODY_SIZE = env("MAX_BODY_SIZE", cast=int, default=10 * 1024)
 CHUNK_SIZE = env("CHUNK_SIZE", cast=int, default=64)
+
 ENABLE_SLEEP = env("ENABLE_SLEEP", cast=bool, default=True)
 MIN_SLEEP_TIME = env("MIN_SLEEP_TIME", cast=int, default=0.01)
 MAX_SLEEP_TIME = env("MAX_SLEEP_TIME", cast=int, default=0.1)
+
+CERT_FILE_PATH = env("CERT_FILE_PATH", cast=str, default=None)
+ENABLE_TLS = CERT_FILE_PATH is not None
 
 
 def generate_response_body():
@@ -85,8 +90,21 @@ async def handle_echo(reader, writer):
     log.info(f"Finished request in {total_time} seconds", request_id=request_id)
 
 
+def get_ssl_context():
+    if not ENABLE_TLS:
+        return
+
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain(certfile=CERT_FILE_PATH)
+
+    return context
+
+
 async def main():
-    server = await asyncio.start_server(handle_echo, "0.0.0.0", 8888)
+
+    server = await asyncio.start_server(
+        handle_echo, "0.0.0.0", 8888, ssl=get_ssl_context()
+    )
 
     addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
     log.info(f"Serving on {addrs}")

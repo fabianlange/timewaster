@@ -1,5 +1,5 @@
 services:
-  app:
+  timewaster:
     build:
       context: .
     ports:

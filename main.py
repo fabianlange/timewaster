@@ -21,6 +21,7 @@ Content-Type: text/html
 
 MIN_BODY_SIZE = 512
 MAX_BODY_SIZE = 1024 * 10
+CHUNK_SIZE = 64
 
 
 def generate_response_body():
@@ -57,7 +58,7 @@ async def handle_echo(reader, writer):
     response = generate_response_body()
     log.info(f"Sending {len(response)} byte response", request_id=request_id)
 
-    for chunk in batched(response, 100):
+    for chunk in batched(response, CHUNK_SIZE):
         chunk = "".join(chunk)
         writer.write(chunk.encode())
         await writer.drain()

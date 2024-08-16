@@ -6,6 +6,7 @@ import uuid
 from itertools import batched
 
 import structlog
+from dpkt import Error
 from dpkt.http import Request
 
 log = structlog.get_logger()
@@ -35,15 +36,20 @@ async def handle_echo(reader, writer):
     request_id = str(uuid.uuid4())
     start_time = time.monotonic()
     data = await reader.read(512)
-    request = Request(data)
-
     addr = writer.get_extra_info("peername")
 
-    log.info(
-        f"Received request from {addr!r} for URI {request.uri}, "
-        f"headers {dict(request.headers)}",
-        request_id=request_id,
-    )
+    try:
+        request = Request(data)
+        log.info(
+            f"Received request from {addr!r} for URI {request.uri}, "
+            f"headers {dict(request.headers)}",
+            request_id=request_id,
+        )
+    except Error:
+        log.info(
+            f"Extracting request failed, received request "
+            f"from {addr!r}, raw data is {data}"
+        )
 
     response = generate_response_body()
     log.info(f"Sending {len(response)} byte response", request_id=request_id)

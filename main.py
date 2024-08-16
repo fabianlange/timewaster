@@ -32,7 +32,9 @@ def generate_response_body():
     length = random.randint(MIN_BODY_SIZE, MAX_BODY_SIZE)
     content = "".join(
         [
-            random.choice(string.ascii_uppercase + string.ascii_lowercase)
+            random.choice(
+                string.ascii_uppercase + string.ascii_lowercase + string.whitespace
+            )
             for _ in range(length)
         ]
     )

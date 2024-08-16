@@ -40,7 +40,9 @@ async def handle_echo(reader, writer):
     addr = writer.get_extra_info("peername")
 
     log.info(
-        f"Received request from {addr!r} for URI {request.uri}", request_id=request_id
+        f"Received request from {addr!r} for URI {request.uri}, "
+        f"headers {dict(request.headers)}",
+        request_id=request_id,
     )
 
     response = generate_response_body()

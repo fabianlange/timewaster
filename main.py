@@ -65,6 +65,8 @@ async def handle_echo(reader, writer):
         sleep_time = random.random()
         await asyncio.sleep(sleep_time)
 
+    writer.write_eof()
+
     log.info("Closing connection", request_id=request_id)
     writer.close()
     await writer.wait_closed()

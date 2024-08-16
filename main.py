@@ -2,6 +2,7 @@ import asyncio
 import random
 import string
 import time
+import uuid
 from itertools import batched
 
 import structlog
@@ -31,16 +32,19 @@ def generate_response_body():
 
 
 async def handle_echo(reader, writer):
+    request_id = str(uuid.uuid4())
     start_time = time.monotonic()
     data = await reader.read(512)
     request = Request(data)
 
     addr = writer.get_extra_info("peername")
 
-    log.info(f"Received request from {addr!r} for URI {request.uri}")
+    log.info(
+        f"Received request from {addr!r} for URI {request.uri}", request_id=request_id
+    )
 
     response = generate_response_body()
-    log.info(f"Sending {len(response)} byte response")
+    log.info(f"Sending {len(response)} byte response", request_id=request_id)
 
     for chunk in batched(response, 100):
         chunk = "".join(chunk)
@@ -49,12 +53,12 @@ async def handle_echo(reader, writer):
         sleep_time = random.random()
         await asyncio.sleep(sleep_time)
 
-    log.info("Closing connection")
+    log.info("Closing connection", request_id=request_id)
     writer.close()
     await writer.wait_closed()
 
     total_time = round(time.monotonic() - start_time, 2)
-    log.info(f"Finished request in {total_time} seconds")
+    log.info(f"Finished request in {total_time} seconds", request_id=request_id)
 
 
 async def main():

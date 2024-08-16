@@ -11,6 +11,12 @@ import structlog
 from dpkt import Error
 from dpkt.http import Request
 
+HOST = "0.0.0.0"
+
+HTTPS_PORT = 8889
+
+HTTP_PORT = 8888
+
 log = structlog.get_logger()
 
 response_body = """HTTP/1.1 200 OK
@@ -103,8 +109,8 @@ def get_ssl_context():
 async def main():
     http_server = await asyncio.start_server(
         handle_echo,
-        "0.0.0.0",
-        8888,
+        HOST,
+        HTTP_PORT,
     )
 
     http_address = ", ".join(str(sock.getsockname()) for sock in http_server.sockets)
@@ -117,7 +123,7 @@ async def main():
     else:
         log.info("Launching with TLS")
         https_server = await asyncio.start_server(
-            handle_echo, "0.0.0.0", 8889, ssl=get_ssl_context()
+            handle_echo, HOST, HTTPS_PORT, ssl=get_ssl_context()
         )
 
         https_address = ", ".join(

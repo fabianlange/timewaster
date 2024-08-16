@@ -93,9 +93,6 @@ async def handle_echo(reader, writer):
 
 
 def get_ssl_context():
-    if not ENABLE_TLS:
-        return
-
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(certfile=CERT_FILE_PATH, keyfile=PRIVATE_KEY_FILE_PATH)
     context.load_verify_locations(CHAIN_FILE_PATH)
@@ -104,16 +101,34 @@ def get_ssl_context():
 
 
 async def main():
-
-    server = await asyncio.start_server(
-        handle_echo, "0.0.0.0", 8888, ssl=get_ssl_context()
+    http_server = await asyncio.start_server(
+        handle_echo,
+        "0.0.0.0",
+        8888,
     )
 
-    addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
-    log.info(f"Serving on {addrs}")
+    http_address = ", ".join(str(sock.getsockname()) for sock in http_server.sockets)
+    log.info(f"Serving on {http_address}")
 
-    async with server:
-        await server.serve_forever()
+    if not ENABLE_TLS:
+        log.info("Launching without TLS")
+        async with http_server:
+            await http_server.serve_forever()
+    else:
+        log.info("Launching with TLS")
+        https_server = await asyncio.start_server(
+            handle_echo, "0.0.0.0", 8889, ssl=get_ssl_context()
+        )
+
+        https_address = ", ".join(
+            str(sock.getsockname()) for sock in https_server.sockets
+        )
+        log.info(f"Serving on {https_address}")
+
+        async with http_server, https_server:
+            await asyncio.gather(
+                http_server.serve_forever(), https_server.serve_forever()
+            )
 
 
 asyncio.run(main())

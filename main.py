@@ -17,7 +17,7 @@ Content-Length: {length}
 Connection: close
 Content-Type: text/html
 
-{content}"""
+{content}\n"""
 
 MIN_BODY_SIZE = 512
 MAX_BODY_SIZE = 1024 * 10
@@ -33,7 +33,9 @@ def generate_response_body():
         ]
     )
 
-    return response_body.format(content=content, length=length)
+    return response_body.format(
+        content=content, length=length + 1
+    )  # 1 extra for newline
 
 
 async def handle_echo(reader, writer):
@@ -64,8 +66,6 @@ async def handle_echo(reader, writer):
         await writer.drain()
         sleep_time = random.random()
         await asyncio.sleep(sleep_time)
-
-    writer.write_eof()
 
     log.info("Closing connection", request_id=request_id)
     writer.close()

@@ -32,6 +32,8 @@ MIN_SLEEP_TIME = env("MIN_SLEEP_TIME", cast=int, default=0.01)
 MAX_SLEEP_TIME = env("MAX_SLEEP_TIME", cast=int, default=0.1)
 
 CERT_FILE_PATH = env("CERT_FILE_PATH", cast=str, default=None)
+PRIVATE_KEY_FILE_PATH = env("PRIVATE_KEY_FILE_PATH", cast=str, default=None)
+CHAIN_FILE_PATH = env("CHAIN_FILE_PATH", cast=str, default=None)
 ENABLE_TLS = CERT_FILE_PATH is not None
 
 
@@ -95,7 +97,8 @@ def get_ssl_context():
         return
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    context.load_cert_chain(certfile=CERT_FILE_PATH)
+    context.load_cert_chain(certfile=CERT_FILE_PATH, keyfile=PRIVATE_KEY_FILE_PATH)
+    context.load_verify_locations(CHAIN_FILE_PATH)
 
     return context
 

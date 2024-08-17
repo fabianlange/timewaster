@@ -1,3 +1,4 @@
 structlog
 dpkt
 python-environ
+asyncssh

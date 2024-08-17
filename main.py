@@ -84,7 +84,14 @@ async def handle_request(reader, writer):
     for chunk in batched(response, CHUNK_SIZE):
         chunk = "".join(chunk)
         writer.write(chunk.encode())
-        await writer.drain()
+        try:
+            await writer.drain()
+        except ConnectionError:
+            total_time = round(time.monotonic() - start_time, 2)
+            log.info(
+                f"Connection lost after {total_time} seconds", request_id=request_id
+            )
+            return
 
         if ENABLE_SLEEP:
             sleep_time = random.uniform(MIN_SLEEP_TIME, MAX_SLEEP_TIME)

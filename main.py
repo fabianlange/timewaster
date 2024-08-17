@@ -68,7 +68,7 @@ async def handle_request(reader, writer):
     try:
         request = Request(data)
         log.info(
-            f"Received request from {addr!r} for URI {request.uri}, "
+            f"Received {request.method} request from {addr!r} for URI {request.uri}, "
             f"headers {dict(request.headers)}",
             request_id=request_id,
         )

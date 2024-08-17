@@ -81,15 +81,19 @@ async def handle_request(reader, writer):
     response = generate_response_body()
     log.info(f"Sending {len(response)} byte response", request_id=request_id)
 
+    byte_sent = 0
     for chunk in batched(response, CHUNK_SIZE):
         chunk = "".join(chunk)
+        byte_sent += len(chunk)
         writer.write(chunk.encode())
         try:
             await writer.drain()
         except ConnectionError:
             total_time = round(time.monotonic() - start_time, 2)
             log.info(
-                f"Connection lost after {total_time} seconds", request_id=request_id
+                f"Connection lost after {total_time} seconds "
+                f"and {byte_sent} sent bytes",
+                request_id=request_id,
             )
             return
 
@@ -97,12 +101,11 @@ async def handle_request(reader, writer):
             sleep_time = random.uniform(MIN_SLEEP_TIME, MAX_SLEEP_TIME)
             await asyncio.sleep(sleep_time)
 
-    log.info("Closing connection", request_id=request_id)
     writer.close()
     await writer.wait_closed()
 
     total_time = round(time.monotonic() - start_time, 2)
-    log.info(f"Finished request in {total_time} seconds", request_id=request_id)
+    log.info(f"Sent {byte_sent} bytes in {total_time} seconds", request_id=request_id)
 
 
 def get_ssl_context():

@@ -19,9 +19,6 @@ class MySSHServer(asyncssh.SSHServer):
             "SSH connection received from %s." % conn.get_extra_info("peername")[0]
         )
 
-    def begin_auth(self, username: str) -> bool:
-        return True
-
     def password_auth_supported(self) -> bool:
         return True
 

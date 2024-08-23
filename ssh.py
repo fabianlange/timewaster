@@ -3,6 +3,8 @@ import asyncio
 import asyncssh
 import structlog
 
+SSH_PORT = 8022
+
 log = structlog.get_logger()
 
 
@@ -32,10 +34,12 @@ class MySSHServer(asyncssh.SSHServer):
 
 
 async def start_server() -> None:
+    log.info(f"Serving HTTP on {SSH_PORT}")
+
     await asyncssh.create_server(
         MySSHServer,
         "",
-        8022,
+        SSH_PORT,
         server_host_keys=["/root/ssh_host_key"],
         process_factory=handle_client,
     )

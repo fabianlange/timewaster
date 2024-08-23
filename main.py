@@ -124,7 +124,7 @@ async def main():
     )
 
     http_address = ", ".join(str(sock.getsockname()) for sock in http_server.sockets)
-    log.info(f"Serving on HTTP on {http_address}")
+    log.info(f"Serving HTTP on {http_address}")
 
     if not ENABLE_TLS:
         log.info("Launching without TLS")
@@ -139,7 +139,7 @@ async def main():
         https_address = ", ".join(
             str(sock.getsockname()) for sock in https_server.sockets
         )
-        log.info(f"Serving on HTTPS on {https_address}")
+        log.info(f"Serving HTTPS on {https_address}")
 
         async with http_server, https_server:
             await asyncio.gather(

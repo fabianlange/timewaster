@@ -24,8 +24,8 @@ class MySSHServer(asyncssh.SSHServer):
         return True
 
     def validate_password(self, username: str, password: str) -> bool:
-        log.info(f"Received {username} with password {password}")
-        return password == "s3cr37"
+        log.info(f"Login attempted with username {username} and password {password}")
+        return False
 
     def kbdint_auth_supported(self):
         return False

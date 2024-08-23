@@ -1,5 +1,5 @@
 services:
-  timewaster:
+  http:
     build:
       context: .
       target: http

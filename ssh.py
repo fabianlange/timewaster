@@ -31,7 +31,7 @@ class MySSHServer(asyncssh.SSHServer):
 
 
 async def start_server() -> None:
-    log.info(f"Serving HTTP on {SSH_PORT}")
+    log.info(f"Serving SSH on {SSH_PORT}")
 
     await asyncssh.create_server(
         MySSHServer,

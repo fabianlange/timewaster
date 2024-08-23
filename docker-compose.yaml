@@ -2,6 +2,7 @@ services:
   timewaster:
     build:
       context: .
+      target: http
     ports:
       - "${BIND_PORT_HTTP:-8000}:8888"
       - "${BIND_PORT_HTTPS:-8001}:8889"
@@ -9,3 +10,12 @@ services:
       - .env
     volumes:
       - ./certs:/certs
+
+  ssh:
+    build:
+      context: .
+      target: ssh
+    ports:
+      - "${BIND_PORT_SSH:-8022}:8022"
+    env_file:
+      - .env

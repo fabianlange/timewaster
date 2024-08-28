@@ -2,3 +2,5 @@ structlog
 dpkt
 python-environ
 asyncssh
+sqlalchemy[asyncio]
+aiosqlite

@@ -2,14 +2,16 @@ import asyncio
 import random
 import ssl
 import string
-import time
 import uuid
+from datetime import datetime
 from itertools import batched
 
 import environ
 import structlog
 from dpkt import Error
 from dpkt.http import Request
+
+from db import create_database_entry, setup_database
 
 HOST = "0.0.0.0"
 
@@ -61,7 +63,7 @@ def generate_response_body():
 
 async def handle_request(reader, writer):
     request_id = str(uuid.uuid4())
-    start_time = time.monotonic()
+    start_time = datetime.now()
     data = await reader.read(512)
     addr = writer.get_extra_info("peername")
 
@@ -73,6 +75,7 @@ async def handle_request(reader, writer):
             request_id=request_id,
         )
     except Error:
+        request = None
         log.info(
             f"Extracting request failed, received request "
             f"from {addr!r}, raw data is {data}"
@@ -89,7 +92,7 @@ async def handle_request(reader, writer):
         try:
             await writer.drain()
         except ConnectionError:
-            total_time = round(time.monotonic() - start_time, 2)
+            total_time = round((datetime.now() - start_time).microseconds / 1000, 2)
             log.info(
                 f"Connection lost after {total_time} seconds "
                 f"and {byte_sent} sent bytes",
@@ -104,8 +107,14 @@ async def handle_request(reader, writer):
     writer.close()
     await writer.wait_closed()
 
-    total_time = round(time.monotonic() - start_time, 2)
+    end_time = datetime.now()
+    total_time = round((end_time - start_time).microseconds / 1000, 2)
     log.info(f"Sent {byte_sent} bytes in {total_time} seconds", request_id=request_id)
+
+    if request:
+        await create_database_entry(
+            request.uri, request.method, addr[0], start_time, end_time
+        )
 
 
 def get_ssl_context():
@@ -117,6 +126,8 @@ def get_ssl_context():
 
 
 async def main():
+    await setup_database()
+
     http_server = await asyncio.start_server(
         handle_request,
         HOST,

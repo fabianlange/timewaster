@@ -98,6 +98,8 @@ async def handle_request(reader, writer):
                 f"and {byte_sent} sent bytes",
                 request_id=request_id,
             )
+            await persist_http_request(request, addr[0], start_time)
+
             return
 
         if ENABLE_SLEEP:
@@ -111,10 +113,18 @@ async def handle_request(reader, writer):
     total_time = round((end_time - start_time).microseconds / 1000, 2)
     log.info(f"Sent {byte_sent} bytes in {total_time} seconds", request_id=request_id)
 
-    if request:
-        await create_http_request_database_entry(
-            request.uri, request.method, addr[0], start_time, end_time
-        )
+    await persist_http_request(request, addr[0], start_time)
+
+
+async def persist_http_request(request, addr, start_time):
+    if not request:
+        return
+
+    end_time = datetime.now()
+
+    await create_http_request_database_entry(
+        request.uri, request.method, addr[0], start_time, end_time
+    )
 
 
 def get_ssl_context():

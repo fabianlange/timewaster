@@ -4,3 +4,4 @@ python-environ
 asyncssh
 sqlalchemy[asyncio]
 aiosqlite
+alembic

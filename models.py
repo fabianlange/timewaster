@@ -20,3 +20,17 @@ class HTTPRequest(Base):
     remote_ip: Mapped[str]
     request_started: Mapped[datetime]
     request_finished: Mapped[datetime]
+
+
+class SSHRequest(Base):
+    __tablename__ = "ssh_request"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+    username: Mapped[str]
+    password: Mapped[str]
+
+    remote_ip: Mapped[str]
+    request_started: Mapped[datetime]
+    request_finished: Mapped[datetime]

@@ -1,3 +1,4 @@
+import environ
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
@@ -7,10 +8,16 @@ DATABASE_FILE = "/data/app.db"
 
 log = structlog.get_logger(__name__)
 
+env = environ.Env()
+ECHO_SQL_QUERIES = env("ECHO_SQL_QUERIES", default=False, cast=bool)
+SQL_QUERY_TIMEOUT = env("SQL_QUERY_TIMEOUT", default=30, cast=int)
+
 
 async def _persist_request(request):
     engine = create_async_engine(
-        f"sqlite+aiosqlite:///{DATABASE_FILE}", echo=True, connect_args={"timeout": 15}
+        f"sqlite+aiosqlite:///{DATABASE_FILE}",
+        echo=ECHO_SQL_QUERIES,
+        connect_args={"timeout": SQL_QUERY_TIMEOUT},
     )
 
     async with AsyncSession(engine) as session:

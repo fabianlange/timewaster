@@ -11,7 +11,7 @@ import structlog
 from dpkt import Error
 from dpkt.http import Request
 
-from db import create_database_entry, setup_database
+from db import create_http_request_database_entry
 
 HOST = "0.0.0.0"
 
@@ -112,7 +112,7 @@ async def handle_request(reader, writer):
     log.info(f"Sent {byte_sent} bytes in {total_time} seconds", request_id=request_id)
 
     if request:
-        await create_database_entry(
+        await create_http_request_database_entry(
             request.uri, request.method, addr[0], start_time, end_time
         )
 
@@ -126,8 +126,6 @@ def get_ssl_context():
 
 
 async def main():
-    await setup_database()
-
     http_server = await asyncio.start_server(
         handle_request,
         HOST,

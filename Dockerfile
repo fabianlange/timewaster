@@ -17,3 +17,9 @@ RUN ssh-keygen -f /root/ssh_host_key  -N ""
 
 COPY . /app
 CMD ["python", "ssh.py"]
+
+
+FROM base AS migrations
+
+COPY . /app
+CMD ["alembic", "upgrade", "head"]

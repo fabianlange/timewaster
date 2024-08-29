@@ -14,6 +14,9 @@ services:
     volumes:
       - ./certs:/certs
       - database:/data
+      - .:/app
+    depends_on:
+      - migrations
 
   ssh:
     build:
@@ -24,4 +27,15 @@ services:
     env_file:
       - .env
     volumes:
+      - database:/data
+      - .:/app
+    depends_on:
+      - migrations
+
+  migrations:
+    build:
+      context: .
+      target: migrations
+    volumes:
+      - .:/app
       - database:/data

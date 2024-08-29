@@ -116,14 +116,14 @@ async def handle_request(reader, writer):
     await persist_http_request(request, addr[0], start_time)
 
 
-async def persist_http_request(request, addr, start_time):
+async def persist_http_request(request, remote_ip, start_time):
     if not request:
         return
 
     end_time = datetime.now()
 
     await create_http_request_database_entry(
-        request.uri, request.method, addr[0], start_time, end_time
+        request.uri, request.method, remote_ip, start_time, end_time
     )
 
 

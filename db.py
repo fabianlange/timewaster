@@ -30,12 +30,12 @@ async def _persist_request(request):
 
 
 async def create_http_request_database_entry(
-    path, method, remote_id, started, finished
+    path, method, remote_ip, started, finished
 ):
     request = HTTPRequest(
         path=path,
         method=method,
-        remote_ip=remote_id,
+        remote_ip=remote_ip,
         request_started=started,
         request_finished=finished,
     )
